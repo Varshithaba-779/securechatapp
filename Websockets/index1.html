@@ -1,0 +1,99 @@
+Conversation opened. 1 read message. 
+
+Skip to content
+Using Gmail with screen readers
+sneha 
+1 of 25
+Multiple client code with one algorithm
+Inbox
+
+sneha umatar <snehaumatar@gmail.com>
+Attachments
+Wed 12 Feb, 11:02
+to me
+
+
+One attachment
+  • Scanned by Gmail
+import asyncio
+import websockets
+import time
+import psutil
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from Crypto.Cipher import DES3, DES, Blowfish
+import os
+
+# Function to measure time and memory usage
+def measure_performance(func, *args):
+    start_time = time.time()  # Start time
+    start_memory = psutil.Process().memory_info().rss  # Start memory usage (in bytes)
+
+    result = func(*args)
+
+    end_time = time.time()  # End time
+    end_memory = psutil.Process().memory_info().rss  # End memory usage
+
+    time_taken = end_time - start_time
+    memory_used = end_memory - start_memory
+
+    return result, time_taken, memory_used
+
+# Example encryption (AES)
+def encrypt_aes(text, key):
+    cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
+    encryptor = cipher.encryptor()
+    padded_text = text + (16 - len(text) % 16) * ' '  # Pad text to be multiple of block size
+    encrypted_text = encryptor.update(padded_text.encode()) + encryptor.finalize()
+    return encrypted_text
+
+# Example decryption (AES)
+def decrypt_aes(encrypted_text, key):
+    cipher = Cipher(algorithms.AES(key), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+    decrypted_text = decryptor.update(encrypted_text) + decryptor.finalize()
+    return decrypted_text.decode().rstrip()
+
+# Handler for each client connection
+async def server_handler(websocket, path):
+    print("Client connected")
+    try:
+        while True:
+            message = await websocket.recv()  # Receive message from client
+
+            # Check if the message is valid (i.e., contains "|")
+            if "|" not in message:
+                await websocket.send("Invalid message format. Expected: algorithm|message")
+                continue  # Skip this iteration and wait for the next message
+
+            algorithm, text = message.split("|", 1)  # Split message by "|"
+
+            # AES
+            if algorithm == "AES":
+                key = b'1234567890123456'  # Example 16-byte AES key
+                encrypted_message, encryption_time, encryption_memory = measure_performance(encrypt_aes, text, key)
+                decrypted_message, decryption_time, decryption_memory = measure_performance(decrypt_aes, encrypted_message, key)
+
+                # Send encrypted, decrypted messages and performance details to the client
+                await websocket.send(f"Encrypted message: {encrypted_message.hex()}")
+                await websocket.send(f"Decrypted message: {decrypted_message}")
+                await websocket.send(f"Encryption Time: {encryption_time} seconds")
+                await websocket.send(f"Decryption Time: {decryption_time} seconds")
+                await websocket.send(f"Memory Used (Encryption): {encryption_memory} bytes")
+                await websocket.send(f"Memory Used (Decryption): {decryption_memory} bytes")
+            else:
+                await websocket.send("Unknown algorithm")
+
+    except websockets.exceptions.ConnectionClosed:
+        print("Client disconnected")
+
+# Set up WebSocket server
+async def main():
+    server = await websockets.serve(server_handler, "localhost", 8765)
+    print("Server started on ws://localhost:8765")
+    await server.wait_closed()  # Wait until the server is closed
+
+if __name__ == "__main__":
+    asyncio.run(main())
+server.py
+Displaying server.py.
