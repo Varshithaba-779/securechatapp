@@ -2,16 +2,19 @@ Project Title : Secure Chat App
 A secure real-time chat application that supports end-to-end encryption using AES, 3DES, and Blowfish algorithms. Built with WebSockets to ensure low-latency messaging.
 
 1.Features
-- Real-time chat using WebSockets
-- End-to-end encryption (AES, 3DES, Blowfish)
-- Secure message transmission
-- Performance comparison of encryption algorithms
+- Features
+- WebSocket-based real-time messaging
+- Client-side encryption and decryption
+- Selectable algorithms: AES, 3DES, Blowfish
+- Performance comparison (encryption time, entropy, avalanche effect)
+- Educational tool for learning cryptography
+
 
  2.Technologies Used
-- Python (for server)
-- JavaScript (for client)
-- WebSockets
-- Cryptography Libraries (e.g., pycryptodome)
+-  Python (backend with `asyncio`, `websockets`)
+- HTML, CSS, JavaScript (frontend)
+- Manual implementation of symmetric encryption
+- `psutil` for performance analysi
 
 3.Installation Instructions
 1. Clone the repository:
@@ -28,8 +31,6 @@ pip install -r requirements.txt
 python server.py
 
 5. Open the client in browser or terminal.
-
-
 
 4.Encryption Details (since it's a crypto-focused project)
 Encryption Algorithms
